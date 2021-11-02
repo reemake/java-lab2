@@ -1,61 +1,67 @@
 package calculator;
 
 import java.util.Stack;
+import java.util.StringTokenizer;
 
 public class RpnEvaluation {
 
-    public static boolean isOperator(Character c) {
-        return c == '+' || c == '-' || c == '*' || c == '/' || c == '^' || c == '(' || c == ')';
-    }
-
-    public static int operatorPriority(Character c) {
-        if (c == '+' || c == '-') return 1;
-        else if (c == '*' || c == '/') return 2;
-        else if (c == '^') return 3;
-        else return -1;
-    }
-
-    public static double someCalc(double op1, double op2, Character operator) {
-        switch (operator) {
-            case '+':
+    public static double someCalc(double op1, double op2, String operator){
+        switch (operator){
+            case "+":
                 return op2 + op1;
-            case '-':
+            case "-":
                 return op2 - op1;
-            case '*':
+            case "*":
                 return op2 * op1;
-            case '/':
+            case "/":
                 return op2 / op1;
-            case '^':
-                return Math.pow(op2, op1);
+            case "^":
+                return Math.pow(op2,op1);
         }
         return -1;
     }
 
+    public static int operatorPriority(String c) {
+        if (c.equals("+") || c.equals("-")) {
+            return 1;
+        } else if (c.equals("*") || c.equals("/")) {
+            return 2;
+        } else if (c.equals("^")) {
+            return 3;
+        } else return -1;
+    }
+
+    public static boolean isOperator(String c) {
+        return c.equals("+") || c.equals("-") || c.equals("*") || c.equals("/") || c.equals("^")|| c.equals("(") || c.equals(")");
+    }
+
     public static String infixToPostfix(String infixExpr) {
+        StringTokenizer infix = new StringTokenizer(infixExpr, "+-*/^()", true);
+        Stack<String> stack = new Stack<>();
         StringBuilder postfixExpr = new StringBuilder();
-        Stack<Character> stack = new Stack<>();
 
-        for (int i = 0; i < infixExpr.length(); i++) {
+        while (infix.hasMoreTokens()) {
+        String temp = infix.nextToken();
 
-            if (!isOperator(infixExpr.charAt(i)))
-                postfixExpr.append(infixExpr.charAt(i));
+            if (!isOperator(temp))
+                postfixExpr.append(temp + " ");
 
-            else if (infixExpr.charAt(i) == '(')
-                stack.push(infixExpr.charAt(i));
+            else if (temp.equals("("))
+                stack.push(temp);
 
-            else if (infixExpr.charAt(i) == ')') {
-                while (!stack.isEmpty() && stack.peek() != '(')
-                    postfixExpr.append(stack.pop());
-                if (!stack.isEmpty() && stack.peek() != '(')
+            else if (temp.equals(")")) {
+                while (!stack.isEmpty() && !stack.peek().equals("("))
+                    postfixExpr.append(stack.pop() + " ");
+                if (!stack.isEmpty() && !stack.peek().equals("("))
                     return null;
-                else if(!stack.isEmpty())
+                else if (!stack.isEmpty())
                     stack.pop();
             }
 
-            else {
-                while (!stack.isEmpty() && (operatorPriority(infixExpr.charAt(i)) <= operatorPriority(stack.peek())))
-                    postfixExpr.append(stack.pop());
-                stack.push(infixExpr.charAt(i));
+            else {  //ifOperator (+, -, *, /, ^)
+                while (!stack.isEmpty() && (operatorPriority(temp) <= operatorPriority(stack.peek())))
+                    postfixExpr.append(stack.pop() + " ");
+                stack.push(temp);
             }
         }
 
@@ -65,38 +71,32 @@ public class RpnEvaluation {
         return postfixExpr.toString();
     }
 
+
     public static double postfixEvaluation(String postfixExpr) {
-        double rpnResult = 0;
+        StringTokenizer postfix = new StringTokenizer(postfixExpr, " ");
         Stack<Double> opStack = new Stack<>();
+        double value = 0;
 
-        for (int i = 0; i < postfixExpr.length(); i++) {
+        while (postfix.hasMoreTokens()) {
+            String temp = postfix.nextToken();
 
-            if (!isOperator(postfixExpr.charAt(i)))
-                opStack.push(Double.valueOf(String.valueOf(postfixExpr.charAt(i))));
+            if (!isOperator(temp))
+                opStack.push(Double.valueOf(String.valueOf(temp)));
 
             else {
                 double op1 = opStack.pop();
                 double op2 = opStack.pop();
-                double result = someCalc(op1, op2, postfixExpr.charAt(i));
+                double result = someCalc(op1, op2, temp);
                 opStack.push(result);
             }
         }
-            rpnResult = opStack.pop();
+            value = opStack.pop();
 
             if (!opStack.isEmpty()) {
-                System.out.println("Error!");
+                System.out.println("Error! Wrong input.");
                 return -1;
             }
-        return rpnResult;
+        return value;
     }
-
-    public static void main(String[] args) {
-        String infix = "3+(2+1)*2^3-8/(5-1*2/2)";
-        String postfix = infixToPostfix(infix);
-        double result = postfixEvaluation(postfix);
-        System.out.println(postfix);
-        System.out.println(result);
-    }
-
 
 }
