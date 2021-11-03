@@ -13,6 +13,14 @@ public class RpnEvaluation {
     /** The value of the evaluated expression */
     private double evaluatedValue;
 
+    public void setEvaluatedValue(double val) {
+        this.evaluatedValue = val;
+    }
+
+    public double getEvaluatedValue() {
+        return this.evaluatedValue;
+    }
+
     /** Constructor for an object of the RpnEvaluation class */
     public RpnEvaluation() {
         this.evaluatedValue = 0;
@@ -114,7 +122,7 @@ public class RpnEvaluation {
      * @param postfixExpr postfix expression
      * @return evaluated value
      */
-    public double postfixEvaluation(String postfixExpr) {
+    public void postfixEvaluation(String postfixExpr) {
         try {
             StringTokenizer postfix = new StringTokenizer(postfixExpr, " ");
             Stack<Double> opStack = new Stack<>();
@@ -132,12 +140,11 @@ public class RpnEvaluation {
                     opStack.push(result);
                 }
             }
-            this.evaluatedValue = opStack.pop();
+            setEvaluatedValue(opStack.pop());
 
         } catch (EmptyStackException e) {
             System.out.println("Error! Expression is not correct - too many operations.");
         }
-        return this.evaluatedValue;
     }
 
 }

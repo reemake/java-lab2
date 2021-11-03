@@ -27,7 +27,8 @@ class RpnEvaluationTest {
     void postfixEvaluationTest() {
         String postfix = "10 5 * 15 + 4 1 + 2 ^ - 25 -";
         double expectedValue = 15;
-        double actualValue = calculator.postfixEvaluation(postfix);
+        calculator.postfixEvaluation(postfix);
+        double actualValue = calculator.getEvaluatedValue();
 
         assertEquals(expectedValue, actualValue);
     }
