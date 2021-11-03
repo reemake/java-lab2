@@ -1,5 +1,6 @@
 package calculator;
 
+import java.util.EmptyStackException;
 import java.util.Stack;
 import java.util.StringTokenizer;
 
@@ -9,14 +10,23 @@ import java.util.StringTokenizer;
  */
 public class RpnEvaluation {
 
+    /** The value of the evaluated expression */
+    private double evaluatedValue;
+
+    /** Constructor for an object of the RpnEvaluation class */
+    public RpnEvaluation() {
+        this.evaluatedValue = 0;
+    }
+
     /**
      * Calculating the value of an arithmetic operation
      * @param op1 first operand
      * @param op2 second operand
      * @param operator arithmetic operation
+     * @throws IllegalArgumentException if in division operation divisor-argument is 0
      * @return the value of the calculated arithmetic operation
      */
-    public static double someCalc(double op1, double op2, String operator){
+    public double someCalc(double op1, double op2, String operator){
         switch (operator){
             case "+":
                 return op2 + op1;
@@ -25,6 +35,8 @@ public class RpnEvaluation {
             case "*":
                 return op2 * op1;
             case "/":
+                if (op1 == 0)
+                    throw new IllegalArgumentException("Error! Divisor-argument is 0.");
                 return op2 / op1;
             case "^":
                 return Math.pow(op2,op1);
@@ -37,7 +49,7 @@ public class RpnEvaluation {
      * @param c arithmetic operation
      * @return priority
      */
-    public static int operatorPriority(String c) {
+    public int operatorPriority(String c) {
         if (c.equals("+") || c.equals("-")) {
             return 1;
         } else if (c.equals("*") || c.equals("/")) {
@@ -52,7 +64,7 @@ public class RpnEvaluation {
      * @param c element (string) of the expression
      * @return true if element is an arithmetic operation, false otherwise
      */
-    public static boolean isOperator(String c) {
+    public boolean isOperator(String c) {
         return c.equals("+") || c.equals("-") || c.equals("*") || c.equals("/") || c.equals("^")|| c.equals("(") || c.equals(")");
     }
 
@@ -61,7 +73,7 @@ public class RpnEvaluation {
      * @param infixExpr infix expression
      * @return postfix expression
      */
-    public static String infixToPostfix(String infixExpr) {
+    public String infixToPostfix(String infixExpr) {
         StringTokenizer infix = new StringTokenizer(infixExpr, "+-*/^()", true);
         Stack<String> stack = new Stack<>();
         StringBuilder postfixExpr = new StringBuilder();
@@ -92,42 +104,40 @@ public class RpnEvaluation {
         }
 
         while (!stack.isEmpty())
-            postfixExpr.append(stack.pop());
+            postfixExpr.append(stack.pop() + " ");
 
         return postfixExpr.toString();
     }
-
 
     /**
      * Evaluating the value of a postfix expression
      * @param postfixExpr postfix expression
      * @return evaluated value
      */
-    public static double postfixEvaluation(String postfixExpr) {
-        StringTokenizer postfix = new StringTokenizer(postfixExpr, " ");
-        Stack<Double> opStack = new Stack<>();
-        double value = 0;
+    public double postfixEvaluation(String postfixExpr) {
+        try {
+            StringTokenizer postfix = new StringTokenizer(postfixExpr, " ");
+            Stack<Double> opStack = new Stack<>();
 
-        while (postfix.hasMoreTokens()) {
-            String temp = postfix.nextToken();
+            while (postfix.hasMoreTokens()) {
+                String temp = postfix.nextToken();
 
-            if (!isOperator(temp))
-                opStack.push(Double.valueOf(String.valueOf(temp)));
+                if (!isOperator(temp))
+                    opStack.push(Double.valueOf(String.valueOf(temp)));
 
-            else {
-                double op1 = opStack.pop();
-                double op2 = opStack.pop();
-                double result = someCalc(op1, op2, temp);
-                opStack.push(result);
+                else {
+                    double op1 = opStack.pop();
+                    double op2 = opStack.pop();
+                    double result = someCalc(op1, op2, temp);
+                    opStack.push(result);
+                }
             }
+            this.evaluatedValue = opStack.pop();
+
+        } catch (EmptyStackException e) {
+            System.out.println("Error! Expression is not correct - too many operations.");
         }
-            value = opStack.pop();
-
-            if (!opStack.isEmpty()) {
-                System.out.println("Error! Wrong input.");
-                return -1;
-            }
-        return value;
+        return this.evaluatedValue;
     }
 
 }
